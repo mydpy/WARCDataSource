@@ -1,3 +1,5 @@
+package com.deploymentzone.spark.datasource.warc
+
 import org.apache.log4j.{Level, LogManager, Logger}
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{SQLContext, SparkSession}
@@ -19,7 +21,7 @@ trait InitializeSpark {
   }
 
   init()
-  
+
   def close(): Unit = {
     spark.close()
   }
