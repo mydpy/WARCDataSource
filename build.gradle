@@ -44,6 +44,10 @@ dependencies {
     compile "org.apache.spark:spark-streaming_${scalaBinaryVersion}:${sparkVersion}"
     compile "org.apache.spark:spark-core_${scalaBinaryVersion}:${sparkVersion}"
 
+    compile("org.netpreserve.commons:webarchive-commons:1.1.8") {
+        exclude group: 'org.apache.hadoop'
+    }
+
     testCompile "org.scalatest:scalatest_${scalaBinaryVersion}:3.0.5"
 }
 

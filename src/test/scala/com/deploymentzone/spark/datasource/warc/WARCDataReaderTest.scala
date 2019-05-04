@@ -9,7 +9,8 @@ import org.scalatest._
 class WARCDataReaderTest extends FlatSpec {
 
   "A WARCDataReader" should "read WARC rows from an archive" in {
-    val path = Thread.currentThread.getContextClassLoader.getResource("apr-2019-warc-partial.txt.gz").getPath
+    //val path = Thread.currentThread.getContextClassLoader.getResource("apr-2019-warc-partial.txt.gz").getPath
+    val path = "/Users/charles.feduke/Downloads/CC-MAIN-20190418101243-20190418122315-00032.warc.gz"
     val reader = new WARCDataReader(path)
     val row = reader.get()
     val gr = new GenericRowWithSchema(row.toSeq(WARCDataSource.schema).toArray, WARCDataSource.schema)
@@ -19,6 +20,13 @@ class WARCDataReaderTest extends FlatSpec {
 
     assert(gr.getAs[String]("WARC-Record-ID") === "<urn:uuid:445f0832-23e7-4d73-9c26-a2089f0edef9>")
     assert(gr.getAs[Int]("Content-Length") === 501)
+
+    gr.schema.fieldNames.map { fieldName =>
+      val idx = gr.schema.fieldIndex(fieldName)
+      val value = gr.get(idx)
+      (fieldName, value)
+    }.foreach { case (name, value) => println(s"$name: $value") }
+
     println(gr.getAs[String]("Payload"))
   }
 
