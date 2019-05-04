@@ -45,10 +45,3 @@ case class WARCDataReaderFactory(path: String) extends InputPartition[InternalRo
   override def createPartitionReader(): InputPartitionReader[InternalRow] = new WARCDataReader(path)
 }
 
-class WARCDataReader(path: String) extends InputPartitionReader[InternalRow] {
-  override def next(): Boolean = ???
-
-  override def get(): Row = ???
-
-  override def close(): Unit = ???
-}
