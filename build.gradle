@@ -43,6 +43,8 @@ dependencies {
     compile "org.apache.spark:spark-sql_${scalaBinaryVersion}:${sparkVersion}"
     compile "org.apache.spark:spark-streaming_${scalaBinaryVersion}:${sparkVersion}"
     compile "org.apache.spark:spark-core_${scalaBinaryVersion}:${sparkVersion}"
+
+    testCompile "org.scalatest:scalatest_${scalaBinaryVersion}:3.0.5"
 }
 
 jar {

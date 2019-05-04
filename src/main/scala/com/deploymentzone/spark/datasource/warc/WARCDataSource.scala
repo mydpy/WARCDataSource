@@ -1,29 +1,45 @@
 package com.deploymentzone.spark.datasource.warc
 
-import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet}
+import java.time.format.DateTimeFormatter
 import java.util
-import java.util.Optional
 
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.sources.{EqualTo, Filter}
-import org.apache.spark.sql.{Row, SaveMode, SparkSession}
 import org.apache.spark.sql.sources.v2.reader._
-import org.apache.spark.sql.sources.v2.writer.{DataSourceWriter, DataWriter, DataWriterFactory, WriterCommitMessage}
-import org.apache.spark.sql.sources.v2.{DataSourceOptions, DataSourceV2, ReadSupport, WriteSupport}
+import org.apache.spark.sql.sources.v2.{DataSourceOptions, DataSourceV2, ReadSupport}
 import org.apache.spark.sql.types._
-import org.slf4j.LoggerFactory
 
-import collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
+import scala.collection.JavaConverters._
 
 object WARCDataSource {
 
+  // https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.0/
   val schema = StructType(Seq(
     StructField("WARC-Type", StringType),
+    StructField("WARC-Record-ID", StringType),
     StructField("WARC-Date", TimestampType),
-    StructField("WARC-Record-ID", StringType)
+    StructField("Content-Length", IntegerType),
+    StructField("Content-Type", StringType),
+    StructField("WARC-Concurrent-To", StringType),
+    StructField("WARC-Block-Digest", StringType),
+    StructField("WARC-Payload-Digest", StringType),
+    StructField("WARC-IP-Address", StringType),
+    StructField("WARC-Refers-To", StringType),
+    StructField("WARC-Target-URI", StringType),
+    StructField("WARC-Truncated", StringType),
+    StructField("WARC-Warcinfo-ID", StringType),
+    StructField("WARC-Concurrent-To", StringType),
+    StructField("WARC-Filename", StringType),
+    StructField("WARC-Profile", StringType),
+    StructField("WARC-Identified-Payload-Type", StringType),
+    StructField("WARC-Segment-Origin-ID", StringType),
+    StructField("WARC-Segment-Number", StringType),
+    StructField("WARC-Segment-Total-Length", StringType),
+    StructField("Payload", StringType)
   ))
 
+  val allColumnNames = schema.fields.map(_.name)
+
+  val dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
 }
 
 class WARCDataSource extends DataSourceV2 with ReadSupport {
@@ -42,6 +58,7 @@ class WARCDataSourceReader(paths: String)
 }
 
 case class WARCDataReaderFactory(path: String) extends InputPartition[InternalRow] {
-  override def createPartitionReader(): InputPartitionReader[InternalRow] = new WARCDataReader(path)
+  override def createPartitionReader(): InputPartitionReader[InternalRow] =
+    new WARCDataReader(path, WARCDataSource.allColumnNames)
 }
 
