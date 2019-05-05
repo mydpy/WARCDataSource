@@ -38,9 +38,18 @@ class WARCDataReaderTest extends FlatSpec {
       val idx = gr.schema.fieldIndex(fieldName)
       val value = gr.get(idx)
       (fieldName, value)
-    }.foreach { case (name, value) => println(s"$name: $value") }
+    }.filter { case (name, _) => name != "Payload" }
+      .filter { case (_, value) => value != null }
+      .foreach { case (name, value) => println(s"$name: $value") }
 
-    println(gr.getAs[String]("Payload"))
+    val payload = gr.getAs[String]("Payload")
+    if (payload != null) {
+      println("*** PAYLOAD ***")
+      println(gr.getAs[String]("Payload"))
+    } else {
+      println("*** no payload")
+    }
+    println("----------------------")
   }
 
 }
