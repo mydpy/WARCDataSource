@@ -32,12 +32,16 @@ class JWARCDataReader(path: String, columns: Seq[String] = WARCDataSource.allCol
     val record = warcReader.next().get()
 
     val originalData = record.headers().map().asScala
+    val data = columns.contains("Payload") match {
+      case false => originalData
+      case true =>
+        val bytes: Array[Byte] = IOUtils.toByteArray(record.body().stream(), record.body().size())
+        val payload: String = new String(bytes, StandardCharsets.UTF_8)
 
-    val bytes: Array[Byte] = IOUtils.toByteArray(record.body().stream(), record.body().size())
-    val payload = new String(bytes, StandardCharsets.UTF_8)
-
-    val data = mutable.Map(originalData.toSeq:_*)
-    data.put("Payload", util.Collections.singletonList(payload))
+        val data = mutable.Map(originalData.toSeq:_*)
+        data.put("Payload", util.Collections.singletonList(payload))
+        data
+    }
 
     val values = columns.map { column =>
       WARCDataSource.schema.apply(column).dataType match {
@@ -50,7 +54,8 @@ class JWARCDataReader(path: String, columns: Seq[String] = WARCDataSource.allCol
         case _ => data.get(column).map(_.get(0)).orNull
       }
     }
-    return InternalRow.fromSeq(values)
+    println(values)
+    InternalRow.fromSeq(values)
   }
 
   override def close(): Unit = warcReader.close()
