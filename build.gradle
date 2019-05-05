@@ -47,6 +47,7 @@ dependencies {
     compile("org.netpreserve.commons:webarchive-commons:1.1.8") {
         exclude group: 'org.apache.hadoop'
     }
+    compile("org.netpreserve:jwarc:0.7.0")
 
     testCompile "org.scalatest:scalatest_${scalaBinaryVersion}:3.0.5"
 }

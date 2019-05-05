@@ -7,12 +7,12 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.scalatest._
 
-class WARCDataReaderTest extends FlatSpec {
+class JWARCDataReaderTest extends FlatSpec {
 
-  "A WARCDataReader" should "read WARC rows from an archive" in {
+  "A JWARCDataReader" should "read WARC rows from an archive" in {
     //val path = Thread.currentThread.getContextClassLoader.getResource("apr-2019-warc-partial.txt.gz").getPath
     val path = "/Users/charles.feduke/Downloads/CC-MAIN-20190418101243-20190418122315-00032.warc.gz"
-    val reader = new WARCDataReader(path)
+    val reader = new JWARCDataReader(path)
     val row = reader.get()
     val gr = createGenericRow(row)
     assert(gr.getAs[String]("WARC-Type") === "warcinfo")
@@ -24,9 +24,13 @@ class WARCDataReaderTest extends FlatSpec {
 
 
     debugGenericRow(gr)
+    assert(reader.next() === true)
     debugGenericRow(createGenericRow(reader.get()))
+    assert(reader.next() === true)
     debugGenericRow(createGenericRow(reader.get()))
+    assert(reader.next() === true)
     debugGenericRow(createGenericRow(reader.get()))
+    assert(reader.next() === true)
   }
 
   private def createGenericRow(row: InternalRow): GenericRowWithSchema = {

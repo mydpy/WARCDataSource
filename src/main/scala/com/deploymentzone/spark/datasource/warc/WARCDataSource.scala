@@ -59,6 +59,6 @@ class WARCDataSourceReader(paths: String)
 
 case class WARCDataReaderFactory(path: String) extends InputPartition[InternalRow] {
   override def createPartitionReader(): InputPartitionReader[InternalRow] =
-    new WARCDataReader(path, WARCDataSource.allColumnNames)
+    new JWARCDataReader(path, WARCDataSource.allColumnNames)
 }
 
