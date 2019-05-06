@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.sources.v2.reader.InputPartitionReader
 import org.apache.spark.sql.types.{IntegerType, TimestampType}
+import org.apache.spark.unsafe.types.UTF8String
 import org.netpreserve.jwarc.WarcReader
 import org.slf4j.LoggerFactory
 
@@ -22,7 +23,7 @@ class JWARCDataReader(path: String, columns: Seq[String] = WARCDataSource.allCol
   val logger = LoggerFactory.getLogger(classOf[JWARCDataReader])
 
   private val warcReader = initializeReader()
-  private lazy val iterator = warcReader.iterator()
+  private val iterator = warcReader.iterator()
 
   private def initializeReader(): WarcReader = {
     logger.info(s"Opening $path for WARC processing")
@@ -30,7 +31,14 @@ class JWARCDataReader(path: String, columns: Seq[String] = WARCDataSource.allCol
   }
 
 
-  override def next(): Boolean = iterator.hasNext
+  override def next(): Boolean = {
+    try {
+      iterator.hasNext
+    } catch {
+      // when the WARCReader encounters the EOF without a CRLFCRLF it throws an exception
+      case _: java.io.UncheckedIOException => false
+    }
+  }
 
   override def get(): InternalRow = {
     val record = iterator.next()
@@ -51,11 +59,12 @@ class JWARCDataReader(path: String, columns: Seq[String] = WARCDataSource.allCol
       WARCDataSource.schema.apply(column).dataType match {
         case IntegerType => data.get(column).map(_.get(0).toInt).getOrElse(0)
         case TimestampType =>
+          // by default Spark SQL wants the Timestamp to be stored in seconds since 1-1-1979 0000
           data.get(column).map(str => {
             val ldt = LocalDateTime.parse(str.get(0), WARCDataSource.dateTimeFormat)
-            java.sql.Timestamp.valueOf(ldt)
-          }).orNull
-        case _ => data.get(column).map(_.get(0)).orNull
+            java.sql.Timestamp.valueOf(ldt).getTime * 1000
+          }).getOrElse(0L)
+        case _ => UTF8String.fromString(data.get(column).map(_.get(0)).orNull)
       }
     }
     InternalRow.fromSeq(values)

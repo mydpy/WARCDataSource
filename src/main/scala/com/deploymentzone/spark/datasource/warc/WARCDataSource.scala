@@ -14,27 +14,27 @@ object WARCDataSource {
 
   // https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.0/
   val schema = StructType(Seq(
-    StructField("WARC-Type", StringType),
-    StructField("WARC-Record-ID", StringType),
-    StructField("WARC-Date", TimestampType),
-    StructField("Content-Length", IntegerType),
-    StructField("Content-Type", StringType),
-    StructField("WARC-Concurrent-To", StringType),
-    StructField("WARC-Block-Digest", StringType),
-    StructField("WARC-Payload-Digest", StringType),
-    StructField("WARC-IP-Address", StringType),
-    StructField("WARC-Refers-To", StringType),
-    StructField("WARC-Target-URI", StringType),
-    StructField("WARC-Truncated", StringType),
-    StructField("WARC-Warcinfo-ID", StringType),
-    StructField("WARC-Concurrent-To", StringType),
-    StructField("WARC-Filename", StringType),
-    StructField("WARC-Profile", StringType),
-    StructField("WARC-Identified-Payload-Type", StringType),
-    StructField("WARC-Segment-Origin-ID", StringType),
-    StructField("WARC-Segment-Number", StringType),
-    StructField("WARC-Segment-Total-Length", StringType),
-    StructField("Payload", StringType)
+    StructField("WARC-Type", StringType, false),
+    StructField("WARC-Record-ID", StringType, false),
+    StructField("WARC-Date", TimestampType, false),
+    StructField("Content-Length", IntegerType, false),
+    StructField("Content-Type", StringType, true),
+    StructField("WARC-Concurrent-To", StringType, true),
+    StructField("WARC-Block-Digest", StringType, true),
+    StructField("WARC-Payload-Digest", StringType, true),
+    StructField("WARC-IP-Address", StringType, true),
+    StructField("WARC-Refers-To", StringType, true),
+    StructField("WARC-Target-URI", StringType, true),
+    StructField("WARC-Truncated", StringType, true),
+    StructField("WARC-Warcinfo-ID", StringType, true),
+    StructField("WARC-Concurrent-To", StringType, true),
+    StructField("WARC-Filename", StringType, true),
+    StructField("WARC-Profile", StringType, true),
+    StructField("WARC-Identified-Payload-Type", StringType, true),
+    StructField("WARC-Segment-Origin-ID", StringType, true),
+    StructField("WARC-Segment-Number", StringType, true),
+    StructField("WARC-Segment-Total-Length", StringType, true),
+    StructField("Payload", StringType, true)
   ))
 
   val allColumnNames = schema.fields.map(_.name)

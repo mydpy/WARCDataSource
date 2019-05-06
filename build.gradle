@@ -60,6 +60,8 @@ jar {
 idea {
     module {
         scopes.PROVIDED.plus += [ configurations.provided ]
+        downloadJavadoc = true
+        downloadSources = true
     }
 }
 
