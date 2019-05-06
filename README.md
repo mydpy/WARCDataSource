@@ -2,7 +2,7 @@
 
 Work in progress.
 
-Spark DataSourceV2 for reading [WARC](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.0/#warc-record).
+Spark DataSourceV2 for reading [WARC](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#warc-record).
 
 ## Unit Tests
 
