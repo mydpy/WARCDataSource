@@ -6,7 +6,7 @@ import org.apache.spark.sql.{SQLContext, SparkSession}
 
 trait InitializeSpark {
   val spark: SparkSession = SparkSession.builder()
-                            .appName("Spark Example")
+                            .appName("WARC Parsing")
                             .master("local[*]")
                             .getOrCreate()
 

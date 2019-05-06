@@ -44,7 +44,7 @@ object WARCDataSource {
 
 class WARCDataSource extends DataSourceV2 with ReadSupport {
   override def createReader(options: DataSourceOptions): DataSourceReader =
-    new WARCDataSourceReader(options.get("paths").get())
+    new WARCDataSourceReader(options.get("path").get())
 }
 
 class WARCDataSourceReader(paths: String)

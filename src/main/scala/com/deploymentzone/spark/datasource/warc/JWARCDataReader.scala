@@ -11,6 +11,7 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.sources.v2.reader.InputPartitionReader
 import org.apache.spark.sql.types.{IntegerType, TimestampType}
 import org.netpreserve.jwarc.WarcReader
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -18,10 +19,13 @@ import scala.collection.mutable
 class JWARCDataReader(path: String, columns: Seq[String] = WARCDataSource.allColumnNames)
   extends InputPartitionReader[InternalRow] {
 
+  val logger = LoggerFactory.getLogger(classOf[JWARCDataReader])
+
   private val warcReader = initializeReader()
   private lazy val iterator = warcReader.iterator()
 
   private def initializeReader(): WarcReader = {
+    logger.info(s"Opening $path for WARC processing")
     new WarcReader(FileChannel.open(Paths.get(path)))
   }
 
@@ -29,18 +33,18 @@ class JWARCDataReader(path: String, columns: Seq[String] = WARCDataSource.allCol
   override def next(): Boolean = iterator.hasNext
 
   override def get(): InternalRow = {
-    val record = warcReader.next().get()
+    val record = iterator.next()
 
     val originalData = record.headers().map().asScala
-    val data = columns.contains("Payload") match {
-      case false => originalData
-      case true =>
-        val bytes: Array[Byte] = IOUtils.toByteArray(record.body().stream(), record.body().size())
-        val payload: String = new String(bytes, StandardCharsets.UTF_8)
+    val data = if (columns.contains("Payload")) {
+      val bytes: Array[Byte] = IOUtils.toByteArray(record.body().stream(), record.body().size())
+      val payload: String = new String(bytes, StandardCharsets.UTF_8)
 
-        val data = mutable.Map(originalData.toSeq:_*)
-        data.put("Payload", util.Collections.singletonList(payload))
-        data
+      val data = mutable.Map(originalData.toSeq: _*)
+      data.put("Payload", util.Collections.singletonList(payload))
+      data
+    } else {
+      originalData
     }
 
     val values = columns.map { column =>
@@ -54,7 +58,6 @@ class JWARCDataReader(path: String, columns: Seq[String] = WARCDataSource.allCol
         case _ => data.get(column).map(_.get(0)).orNull
       }
     }
-    println(values)
     InternalRow.fromSeq(values)
   }
 
